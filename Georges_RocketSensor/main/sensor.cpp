@@ -30,10 +30,6 @@ SensorReading readSensor() {
     sensors_event_t humidity, temperature; 
     dht20.getEvent(&humidity, &temperature);
 
-    Serial.printf("[debug] Raw temp: %.2f  Raw humidity: %.2f\n",
-    temperature.temperature,
-    humidity.relative_humidity);
-
     //Sanity check
     bool tempOK = temperature.temperature >= -40.0f 
                 && temperature.temperature <= 80.0f;
