@@ -47,11 +47,7 @@ void loop() {
 
     BmpReading data = readBmp();
     printBmpReading(data);
-
-    if (!data.valid) {
-      updateBMPReading(data);
-    }
-    
+    updateBMPReading(data);
   }
 
   if (now - lastDHTReadAt >= DHT_READ_INTERVAL_MS) {
