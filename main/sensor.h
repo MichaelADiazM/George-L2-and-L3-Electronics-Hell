@@ -9,23 +9,15 @@
 
 #include <stdbool.h>
 
-// Holds a single reading from the DHT20
-struct DhtReading {
-    float temperatureC;
-    float temperatureF;
-    float humidity;
-    bool valid;
-};
-
 //Holds a single reading from the BMP390
 struct BmpReading {
     float pressure;
+    float temperatureC;
     float altitudeM;
     bool valid;
 };
 
 BmpReading readBmp();
-DhtReading readDht();
 
 /**
  * initSensor()
@@ -39,16 +31,3 @@ bool initSensor();
  * No-op if reading.valid is false.
  */
 void printBmpReading(const BmpReading& r);
-
-/**
- * printDhtReading()
- * Formats and prints a dht reading to Serial.
- * No-op if reading.valid is false.
- */
-void printDhtReading(const DhtReading& r);
-
-/**
- * sanityCheck()
- * Verifies whether the readings from the DHT20 are within expected range
- */
-bool sanityCheck(DhtReading temp, DhtReading hum);

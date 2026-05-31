@@ -6,7 +6,11 @@
  */
 
 #pragma once
+
 #include "sensor.h"
+#include <FS.h>
+#include <SD.h>
+#include <SPI.h>
 
 struct LogEntry {
     unsigned long timestamp;

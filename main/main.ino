@@ -1,10 +1,9 @@
 /**
  * main.ino
  * --------
- * ESP32 + DHT20 + BMP390 sensor with HTTP server.
+ * ESP32 + BMP390 sensor with HTTP server.
  *
  * Dependencies (install via Arduino Library Manager):
- *   - Adafruit AHTX0  (covers the DHT20 / AHT20 family)
  *   - Adafruit Unified Sensor
  *   - Adafruit BMP3XX
  * 
@@ -18,13 +17,16 @@
 #include "config.h"
 #include "sensor.h"
 #include "server.h"
+#include "logger.h"
+#include "radio.h"
 
-unsigned long lastDHTReadAt = 0;
-unsigned long lastBMPReadAt = 0;
+static unsigned long lastBMPReadAt  = 0;
+static unsigned long lastLogFlushAt = 0;
+static int           readCount      = 0;
 
 //Kickstarts the sensor and the server, checks whether they're working
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("\n[main] Starting...");
 
   //Pauses program if sensor isn't initialized
@@ -32,8 +34,18 @@ void setup() {
     Serial.println("\n[main: sensor] Sensor init failed. Check wiring and reset.");
     while (true) delay(1000);
   }
+  if (!initServer()) {
+    Serial.println("\n[main: server] Server init failed. Check WiFi credentials and reset.");
+    while (true) delay(1000);
+  }
+  if (!initLogger()) {
+    Serial.println("\n[main: logger] Logger init failed. Check SD card wiring and reset.");
+    while (true) delay(1000);
+  }
 
   initServer();
+
+
 }
 
 
@@ -47,14 +59,23 @@ void loop() {
 
     BmpReading data = readBmp();
     printBmpReading(data);
+    if (data.valid) {
+      logReading(now, data);
     updateBMPReading(data);
+
+      if (++readCount % 2 == 0) {
+        RadioPacket packet = {
+          .timestamp_ms = now,
+          .temperatureC = data.temperatureC,
+          .pressureHpa = data.pressureHpa,
+          .altitudeM = data.altitudeM
+        };
+      }
   }
 
-  if (now - lastDHTReadAt >= DHT_READ_INTERVAL_MS) {
-    lastDHTReadAt = now;
-
-    DhtReading data = readDht();
-    printDhtReading(data);
-    updateDHTReading(data);
+    if (now - lastLogFlushAt >= 1000) { //Flush logs every 60s
+      lastLogFlushAt = now;
+      flushLogs();
+    }
   }
 }  
