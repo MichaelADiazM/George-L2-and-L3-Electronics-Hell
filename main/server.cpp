@@ -7,12 +7,12 @@
 
 WebServer server(HTTP_PORT);
 
-static BmpReading lastBmp = {0.0f, 0.0f, false}; 
+static BmpReading lastBmp = {0.0f, 0.0f, 0.0f,false}; 
 
 void handleRoot() {
-  char msg[1500];
+  char msg[2000];
 
-  snprintf(msg, 1500,
+  snprintf(msg, 2000,
            "<html>\
   <head>\
     <meta http-equiv='refresh' content='4'/>\
@@ -36,6 +36,12 @@ void handleRoot() {
         <sub class='units'>hPa</sub>\
       </p>\
       <p>\
+        <i class='fas fa-thermometer-half' style='color:#e74c3c;'></i>\
+        <span class='labels'>Temperature</span>\
+        <span>%.2f</span>\
+        <sub class='units'>&deg;C</sub>\
+      </p>\
+      <p>\
         <i class='fas fa-mountain' style='color:#4a90d9;'></i>\
         <span class='labels'>Altitude</span>\
         <span>%.2f</span>\
@@ -43,7 +49,7 @@ void handleRoot() {
       </p>\
   </body>\
 </html>",
-          lastBmp.pressureHpa,
+          lastBmp.pressure,
           lastBmp.temperatureC,
           lastBmp.altitudeM
           );

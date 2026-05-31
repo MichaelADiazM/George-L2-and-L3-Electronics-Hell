@@ -1,0 +1,6 @@
+-Wno-frame-address
+-mlongcalls
+-fno-builtin-memcpy
+-fno-builtin-memset
+-fno-builtin-bzero
+"-specs=C:/Users/diazm/OneDrive/Documents/Arduino/Georges_RocketSensor/build/specs/picolibc.specs"

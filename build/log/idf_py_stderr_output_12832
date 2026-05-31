@@ -1,0 +1,28 @@
+Command: cmake -G Ninja -B C:\Users\diazm\OneDrive\Documents\Arduino\Georges_RocketSensor\build -DPYTHON_DEPS_CHECKED=1 -DPYTHON=C:\Espressif\tools\python\v6.0.1\venv\Scripts\python.exe -DESP_PLATFORM=1 -DCCACHE_ENABLE=False C:\Users\diazm\OneDrive\Documents\Arduino\Georges_RocketSensor
+info: Default value for FREERTOS_HZ in sdkconfig is 1000 but it is 100 according to Kconfig.
+Using default value from sdkconfig (1000).
+Configuration Report                                                           
++-----------------------------------------------------------------------------+
+|  Parser Version: 1                                                          |
+|  Verbosity: default                                                         |
+|  Defaults policy: sdkconfig                                                 |
+|  Status: Finished with notifications                                        |
+|                                                                             |
+| Default Value Mismatch                                                      |
+| +-------------------------------------------------------------------------+ |
+| | Using sdkconfig default values                                       |  | |
+| | Config symbols with different default value between sdkconfig and    |  | |
+| | Kconfig                                                              |  | |
+| | FREERTOS_HZ: Kconfig default value: 100, sdkconfig default value:    |  | |
+| | 1000                                                                 |  | |
+| +-------------------------------------------------------------------------+ |
++-----------------------------------------------------------------------------+
+CMake Error at C:/esp/v6.0.1/esp-idf/tools/cmake/component.cmake:321 (message):
+  Include directory
+  'C:/Users/diazm/Documents/Arduino/libraries/Adafruit_BMP3XX_Library' is not
+  a directory.
+Call Stack (most recent call first):
+  C:/esp/v6.0.1/esp-idf/tools/cmake/component.cmake:496 (__component_add_include_dirs)
+  main/CMakeLists.txt:1 (idf_component_register)
+
+

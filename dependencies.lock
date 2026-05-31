@@ -29,6 +29,16 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 1.1.0
+  espressif/esp-dsp:
+    component_hash: ed9ac175b14e0414399a2b33c525579414b5bad19a2a67b12ea212def96f9a98
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.2'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.8.2
   espressif/esp-modbus:
     component_hash: 56be3df9f436ce30ee513b9c4a77db13b0c3d6c1f52ee48f2198e7aba4319d3c
     dependencies:
@@ -39,6 +49,26 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 2.1.2
+  espressif/esp-zboss-lib:
+    component_hash: 321883d142421f65009972408287441794250057668a11abbdfd8bec77c3309a
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.6.4
+  espressif/esp-zigbee-lib:
+    component_hash: fa0812e6743e2a7d999af9f44ccdcea17ccb1e80f98d6b2956f44687503a88fd
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.6.8
   espressif/esp_modem:
     component_hash: f4fa6dab2496af2673a68881132bb7ce0f05bf62e30e5bd0d45b607066378a28
     dependencies:
@@ -57,6 +87,33 @@ dependencies:
       version: '>=6.0'
     source:
       registry_url: https://components.espressif.com/
+      type: service
+    version: 1.0.0
+  espressif/lan867x:
+    component_hash: 651c9d6e3d96acb08bd5066144b12a12e94df0a6241127a0538d8680689de2c4
+    dependencies:
+    - name: espressif/lan86xx_common
+      registry_url: https://components.espressif.com
+      require: private
+      version: '*'
+    - name: idf
+      require: private
+      version: '>=5.3'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    targets:
+    - esp32
+    - esp32p4
+    version: 2.0.0
+  espressif/lan86xx_common:
+    component_hash: 6dcb1be9f43ae940979bd628fa5bee278949b66c545e1fe2321e486102e81026
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.2'
+    source:
+      registry_url: https://components.espressif.com
       type: service
     version: 1.0.0
   espressif/mdns:
@@ -113,14 +170,18 @@ direct_dependencies:
 - chmorgan/esp-libhelix-mp3
 - espressif/cjson
 - espressif/dm9051
+- espressif/esp-dsp
 - espressif/esp-modbus
+- espressif/esp-zboss-lib
+- espressif/esp-zigbee-lib
 - espressif/esp_modem
 - espressif/ksz8851snl
+- espressif/lan867x
 - espressif/mdns
 - espressif/network_provisioning
 - espressif/w5500
 - idf
 - joltwallet/littlefs
 manifest_hash: 5c934a75829e17b97cef49445d663697499221daa5466c5ac8f04d889ff6e856
-target: esp32c61
+target: esp32
 version: 3.0.0

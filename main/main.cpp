@@ -42,10 +42,10 @@ void setup() {
     Serial.println("\n[main: logger] Logger init failed. Check SD card wiring and reset.");
     while (true) delay(1000);
   }
-
-  initServer();
-
-
+  if (!initRadio()) {
+    Serial.println("\n[main: radio] Radio init failed. Check wiring and reset.");
+    while (true) delay(1000);
+  }
 }
 
 
@@ -61,19 +61,20 @@ void loop() {
     printBmpReading(data);
     if (data.valid) {
       logReading(now, data);
-    updateBMPReading(data);
+      updateBMPReading(data);
 
       if (++readCount % 2 == 0) {
         RadioPacket packet = {
           .timestamp_ms = now,
           .temperatureC = data.temperatureC,
-          .pressureHpa = data.pressureHpa,
-          .altitudeM = data.altitudeM
+          .pressureHpa  = data.pressure,
+          .altitudeM    = data.altitudeM
         };
+        transmitReading(packet);
       }
-  }
+    }
 
-    if (now - lastLogFlushAt >= 1000) { //Flush logs every 60s
+    if (now - lastLogFlushAt >= 1000) { //Flush logs every 1s
       lastLogFlushAt = now;
       flushLogs();
     }

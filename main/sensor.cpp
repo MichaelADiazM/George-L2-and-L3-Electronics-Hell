@@ -42,7 +42,7 @@ BmpReading readBmp() {
         return result;
     }
     
-    result.pressure     = bmp.pressureHpa / 100.0f;
+    result.pressure     = bmp.pressure / 100.0f;
     result.temperatureC = bmp.temperature;
     result.altitudeM    = bmp.readAltitude(SEALEVELPRESSURE_HPA);
     result.valid        = true;

@@ -7,6 +7,10 @@
 #include "logger.h"
 #include "config.h"
 
+static LogEntry logBuffer[25];
+static int bufferCount = 0;
+static File logFile;
+
 bool initLogger() {
     if (!SD.begin(SD_CS_PIN)) {
         Serial.println("[logger] SD card initialization failed. Check wiring.");
@@ -31,7 +35,7 @@ bool initLogger() {
 
 void logReading(unsigned long timestamp, const BmpReading& reading) {
     if (bufferCount >= 25) return;
-    logBuffer[bufferCount++] = { timestamp, reading.temperatureC, reading.pressureHpa, reading.altitudeM };
+    logBuffer[bufferCount++] = { timestamp, reading.temperatureC, reading.pressure, reading.altitudeM };
 }
 
 void flushLogs() {

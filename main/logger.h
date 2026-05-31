@@ -19,10 +19,6 @@ struct LogEntry {
     float altitudeM;
 };
 
-static LogEntry logBuffer[25];
-static int bufferCount = 0;
-static File logFile;
-
 bool initLogger();
 
 void logReading(unsigned long timestamp, const BmpReading& reading);

@@ -1,0 +1,49 @@
+Command: cmake -G Ninja -B C:\Users\diazm\OneDrive\Documents\Arduino\Georges_RocketSensor\build -DPYTHON_DEPS_CHECKED=1 -DPYTHON=C:\Espressif\tools\python\v6.0.1\venv\Scripts\python.exe -DESP_PLATFORM=1 -DCCACHE_ENABLE=False C:\Users\diazm\OneDrive\Documents\Arduino\Georges_RocketSensor
+-- IDF_TARGET is not set, guessed 'esp32' from sdkconfig 'C:/Users/diazm/OneDrive/Documents/Arduino/Georges_RocketSensor/sdkconfig'
+-- Found Git: C:/Program Files/Git/cmd/git.exe (found version "2.53.0.windows.2")
+-- Component directory C:/esp/v6.0.1/esp-idf/components/mqtt does not contain a CMakeLists.txt file. No component will be added
+-- Minimal build - OFF
+-- The C compiler identification is GNU 15.2.0
+-- The CXX compiler identification is GNU 15.2.0
+-- The ASM compiler identification is GNU
+-- Found assembler: C:/Espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32-elf-gcc.exe
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32-elf-gcc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/Espressif/tools/xtensa-esp-elf/esp-15.2.0_20251204/xtensa-esp-elf/bin/xtensa-esp32-elf-g++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Building ESP-IDF components for target esp32
+NOTICE: Skipping optional dependency: espressif/esp_rainmaker
+NOTICE: Skipping optional dependency: espressif/rmaker_common
+NOTICE: Skipping optional dependency: espressif/esp_insights
+NOTICE: Skipping optional dependency: espressif/esp_diag_data_store
+NOTICE: Skipping optional dependency: espressif/esp_diagnostics
+NOTICE: Skipping optional dependency: espressif/cbor
+NOTICE: Skipping optional dependency: espressif/qrcode
+NOTICE: Skipping optional dependency: espressif/esp-sr
+NOTICE: Skipping optional dependency: espressif/esp_hosted
+NOTICE: Skipping optional dependency: espressif/esp_wifi_remote
+NOTICE: Skipping optional dependency: espressif/libsodium
+NOTICE: Processing 16 dependencies:
+NOTICE: [1/16] chmorgan/esp-libhelix-mp3 (1.0.3)
+NOTICE: [2/16] espressif/cjson (1.7.19~2)
+NOTICE: [3/16] espressif/dm9051 (1.1.0)
+NOTICE: [4/16] espressif/esp-dsp (1.8.2)
+NOTICE: [5/16] espressif/esp-modbus (2.1.2)
+NOTICE: [6/16] espressif/esp-zboss-lib (1.6.4)
+NOTICE: [7/16] espressif/esp-zigbee-lib (1.6.8)
+NOTICE: [8/16] espressif/esp_modem (2.0.1)
+NOTICE: [9/16] espressif/ksz8851snl (1.0.0)
+NOTICE: [10/16] espressif/lan867x (2.0.0)
+NOTICE: [11/16] espressif/lan86xx_common (1.0.0)
+NOTICE: [12/16] espressif/mdns (1.11.1)
+NOTICE: [13/16] espressif/network_provisioning (1.2.4)
+NOTICE: [14/16] espressif/w5500 (1.0.1)
+NOTICE: [15/16] joltwallet/littlefs (1.22.1)
+NOTICE: [16/16] idf (6.0.1)
+-- Configuring incomplete, errors occurred!
