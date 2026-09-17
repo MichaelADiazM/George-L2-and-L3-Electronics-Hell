@@ -57,5 +57,6 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "idf.customExtraVars": {},
-  "idf.currentSetup": "C:\\esp\\v6.0.1\\esp-idf"
+  "idf.currentSetup": "C:\\esp\\v6.0.1\\esp-idf",
+  "idf.flashType": "UART"
 }
