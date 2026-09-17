@@ -686,3 +686,7 @@ Your feedback helps us maintain this system for future club members and L3 candi
 **Maintainer:** North Seattle College Rocketry Club  
 **Contact:** NSCRocketryClub@seattlecolleges.edu  
 **L3 Certification:** Pending Flight Test
+
+---
+
+*This documentation was co-authored with Claude (Sonnet and Haiku models) via Claude Code.*
