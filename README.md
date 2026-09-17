@@ -308,12 +308,6 @@ graph TD
     ESP32 --> LOGGER["logger.cpp<br/>Buffer & flush every 1s"]
     ESP32 --> RADIO["radio.cpp<br/>Transmit every 100ms"]
     ESP32 --> SERVER["server.cpp<br/>HTTP requests"]
-    
-    style ESP32 fill:#e1f5ff
-    style SENSOR fill:#fff3e0
-    style LOGGER fill:#f3e5f5
-    style RADIO fill:#e8f5e9
-    style SERVER fill:#fce4ec
 ```
 
 **Key Design Principles:**
