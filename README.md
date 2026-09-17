@@ -85,62 +85,34 @@ idf.py monitor  # View serial output
 **Visual Pinout Diagram:**
 
 ```mermaid
-graph LR
-    subgraph ESP["ESP32-C61"]
-        direction TB
-        subgraph Power["Power Rails"]
-            VCC["3.3V"]
-            GND["GND"]
-        end
-        subgraph I2C_Bus["I2C Bus<br/>(GPIO 8,9)"]
-            GPIO8["GPIO 8<br/>SDA"]
-            GPIO9["GPIO 9<br/>SCL"]
-        end
-        subgraph SPI_Bus["SPI Bus<br/>(GPIO 10,11,12)"]
-            GPIO10["GPIO 10<br/>SCK"]
-            GPIO11["GPIO 11<br/>MOSI"]
-            GPIO12["GPIO 12<br/>MISO"]
-        end
-        subgraph Chip_Select["Chip Select"]
-            GPIO5["GPIO 5<br/>SD CS"]
-            GPIO7["GPIO 7<br/>RFM CS"]
-        end
-        subgraph Interrupt["Interrupt"]
-            GPIO6["GPIO 6<br/>RFM INT"]
-        end
-    end
-    
-    subgraph Sensors["Connected Devices"]
-        BMP390["BMP390<br/>Pressure Sensor"]
-        RFM69["RFM69<br/>Radio Module"]
-        SD["SD Card<br/>Module"]
-    end
-    
-    VCC --> BMP390
-    GND --> BMP390
-    GPIO8 --> BMP390
-    GPIO9 --> BMP390
-    
-    VCC --> RFM69
-    GND --> RFM69
-    GPIO10 --> RFM69
-    GPIO11 --> RFM69
-    GPIO12 --> RFM69
-    GPIO7 --> RFM69
-    GPIO6 --> RFM69
-    
-    VCC --> SD
-    GND --> SD
-    GPIO10 --> SD
-    GPIO11 --> SD
-    GPIO12 --> SD
-    GPIO5 --> SD
-    
-    style ESP fill:#e1f5ff
-    style BMP390 fill:#fff3e0
-    style RFM69 fill:#e8f5e9
-    style SD fill:#f3e5f5
+flowchart LR
+    ESP["ESP32-C61"]
+    BMP["BMP390<br/>Pressure Sensor"]
+    RFM["RFM69<br/>Radio Module"]
+    SD["SD Card<br/>Module"]
+
+    ESP ---|"Power<br/>3.3V + GND"| BMP
+    ESP <-->|"I2C Data<br/>SDA = GPIO 8<br/>SCL = GPIO 9"| BMP
+
+    ESP ---|"Power<br/>3.3V + GND"| RFM
+    ESP -->|"SPI Out<br/>SCK = GPIO 10<br/>MOSI = GPIO 11<br/>CS = GPIO 7"| RFM
+    RFM -->|"SPI In<br/>MISO = GPIO 12"| ESP
+    RFM -.->|"Interrupt<br/>INT = GPIO 6"| ESP
+
+    ESP ---|"Power<br/>3.3V + GND"| SD
+    ESP -->|"SPI Out<br/>SCK = GPIO 10<br/>MOSI = GPIO 11<br/>CS = GPIO 5"| SD
+    SD -->|"SPI In<br/>MISO = GPIO 12"| ESP
 ```
+
+**How to read this diagram:**
+| Line style | Meaning |
+|---|---|
+| `———` (no arrowhead) | Power connection — 3.3V and GND, no signal |
+| `──▶` (solid arrow) | Data or control signal traveling in the arrow's direction |
+| `◀─▶` (double arrow) | I2C bus — same two wires carry data both ways |
+| `┄┄▶` (dashed arrow) | Interrupt — the device signals the ESP32 asynchronously |
+
+**Reading example:** The line from ESP32 to RFM69 labeled "SPI Out" means the ESP32 is *sending* clock, data, and chip-select signals to the radio. The separate "SPI In" line means the radio is *sending data back* on the MISO wire. That's why SPI needs two lines here even though it's "one bus" — data flows in both directions, just on different physical wires.
 
 **Bus Sharing Summary:**
 
