@@ -16,9 +16,6 @@
 #define AP_PASS        "FINDMEFATHER!"
 #define WIFI_TIMEOUT_MS 10000
 
-// Threshold for AP shutoff according to altitude
-#define AP_SHUTOFF_ALTITUDE_M 0
-
 // ── Sensor ───────────────────────────────────────────────────────────────────
 #define I2C_SDA_PIN 22
 #define I2C_SCL_PIN 28
@@ -33,6 +30,8 @@
 // Poll interval: BMP390 output data rate at current OSR settings
 #define BMP_READ_INTERVAL_MS 20
 
+// Threshold for AP shutoff according to altitude
+#define AP_SHUTOFF_ALTITUDE_M 0
 
 // ── Radio ───────────────────────────────────────────────────────────────────
 constexpr float RFM69_FREQUENCY_MHZ = 915.0f;

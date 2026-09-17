@@ -57,7 +57,7 @@ void handleRoot() {
 }
 
 bool initServer() {
-  // ESP works as both an access point and a station point.
+  // Makes ESP work as both an access point and a station point.
   WiFi.mode(WIFI_AP_STA);
   // Rocket -> phone
   WiFi.softAP(AP_SSID, AP_PASS);
