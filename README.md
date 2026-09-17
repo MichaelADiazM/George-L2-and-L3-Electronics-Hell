@@ -80,6 +80,91 @@ idf.py monitor  # View serial output
 
 ### Hardware Wiring Guide
 
+#### Pin Connection Overview
+
+**Visual Pinout Diagram:**
+
+```mermaid
+graph LR
+    subgraph ESP["ESP32-C61"]
+        direction TB
+        subgraph Power["Power Rails"]
+            VCC["3.3V"]
+            GND["GND"]
+        end
+        subgraph I2C_Bus["I2C Bus<br/>(GPIO 8,9)"]
+            GPIO8["GPIO 8<br/>SDA"]
+            GPIO9["GPIO 9<br/>SCL"]
+        end
+        subgraph SPI_Bus["SPI Bus<br/>(GPIO 10,11,12)"]
+            GPIO10["GPIO 10<br/>SCK"]
+            GPIO11["GPIO 11<br/>MOSI"]
+            GPIO12["GPIO 12<br/>MISO"]
+        end
+        subgraph Chip_Select["Chip Select"]
+            GPIO5["GPIO 5<br/>SD CS"]
+            GPIO7["GPIO 7<br/>RFM CS"]
+        end
+        subgraph Interrupt["Interrupt"]
+            GPIO6["GPIO 6<br/>RFM INT"]
+        end
+    end
+    
+    subgraph Sensors["Connected Devices"]
+        BMP390["BMP390<br/>Pressure Sensor"]
+        RFM69["RFM69<br/>Radio Module"]
+        SD["SD Card<br/>Module"]
+    end
+    
+    VCC --> BMP390
+    GND --> BMP390
+    GPIO8 --> BMP390
+    GPIO9 --> BMP390
+    
+    VCC --> RFM69
+    GND --> RFM69
+    GPIO10 --> RFM69
+    GPIO11 --> RFM69
+    GPIO12 --> RFM69
+    GPIO7 --> RFM69
+    GPIO6 --> RFM69
+    
+    VCC --> SD
+    GND --> SD
+    GPIO10 --> SD
+    GPIO11 --> SD
+    GPIO12 --> SD
+    GPIO5 --> SD
+    
+    style ESP fill:#e1f5ff
+    style BMP390 fill:#fff3e0
+    style RFM69 fill:#e8f5e9
+    style SD fill:#f3e5f5
+```
+
+**Bus Sharing Summary:**
+
+```
+I2C Bus (GPIO 8, 9):
+  └─ BMP390 Sensor (Address: 0x77)
+
+SPI Bus (GPIO 10, 11, 12) - SHARED:
+  ├─ RFM69 Radio (CS: GPIO 7, INT: GPIO 6)
+  └─ SD Card Module (CS: GPIO 5)
+
+Power:
+  ├─ All modules: 3.3V + GND
+  └─ Total current: ~150mA peak (during radio transmission)
+```
+
+**Key Notes:**
+- ⚠️ **GPIO 10, 11, 12 are shared** between radio and SD card (same SPI bus)
+- ✅ Each has its own **Chip Select (CS)** pin so they don't conflict
+- ✅ I2C bus is **isolated** (only BMP390)
+- ✅ Pull-ups on I2C lines (typically 4.7kΩ resistors, already on sensor module)
+
+---
+
 #### BMP390 Pressure Sensor (I2C)
 | BMP390 | ESP32-C61 | Purpose |
 |--------|-----------|---------|
