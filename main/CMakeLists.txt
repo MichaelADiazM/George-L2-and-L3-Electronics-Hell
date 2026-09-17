@@ -1,13 +1,26 @@
 idf_component_register(
-    SRCS 
+    SRCS
         "main.cpp"
         "sensor.cpp"
         "radio.cpp"
         "logger.cpp"
         "server.cpp"
-    INCLUDE_DIRS 
+        "libraries/RadioHead/RH_RF69.cpp"
+        "libraries/RadioHead/RHGenericDriver.cpp"
+        "libraries/RadioHead/RHGenericSPI.cpp"
+        "libraries/RadioHead/RHSPIDriver.cpp"
+        "libraries/RadioHead/RHHardwareSPI.cpp"
+        "libraries/Adafruit_BMP3XX_Library/Adafruit_BMP3XX.cpp"
+        "libraries/Adafruit_BusIO/Adafruit_I2CDevice.cpp"
+        "libraries/Adafruit_BusIO/Adafruit_SPIDevice.cpp"
+        "libraries/Adafruit_BusIO/Adafruit_BusIO_Register.cpp"
+        "libraries/Adafruit_Unified_Sensor/Adafruit_Sensor.cpp"
+        "libraries/Adafruit_BMP3XX_Library/bmp3.c"
+    INCLUDE_DIRS
         "."
-        "C:/Users/diazm/OneDrive/Documents/Arduino/libraries/Adafruit_BMP3XX_Library"
-        "C:/Users/diazm/OneDrive/Documents/Arduino/libraries/RadioHead"
+        "libraries/RadioHead"
+        "libraries/Adafruit_BMP3XX_Library"
+        "libraries/Adafruit_BusIO"
+        "libraries/Adafruit_Unified_Sensor"
     REQUIRES arduino
 )

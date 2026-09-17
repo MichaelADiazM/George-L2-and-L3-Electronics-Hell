@@ -1,0 +1,12 @@
+[submodule "main/libraries/RadioHead"]
+	path = main/libraries/RadioHead
+	url = https://github.com/PaulStoffregen/RadioHead
+[submodule "main/libraries/Adafruit_BMP3XX_Library"]
+	path = main/libraries/Adafruit_BMP3XX_Library
+	url = https://github.com/adafruit/Adafruit_BMP3XX
+[submodule "main/libraries/Adafruit_BusIO"]
+	path = main/libraries/Adafruit_BusIO
+	url = https://github.com/adafruit/Adafruit_BusIO
+[submodule "main/libraries/Adafruit_Unified_Sensor"]
+	path = main/libraries/Adafruit_Unified_Sensor
+	url = https://github.com/adafruit/Adafruit_Sensor
