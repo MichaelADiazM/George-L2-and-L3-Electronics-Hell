@@ -82,37 +82,60 @@ idf.py monitor  # View serial output
 
 #### Pin Connection Overview
 
-**Visual Pinout Diagram:**
+Wire one device at a time. Each diagram below shows only that device's connections — follow it top to bottom (power first, then signal wires) and you won't have to trace overlapping lines.
 
-```mermaid
-flowchart LR
-    ESP["ESP32-C61"]
-    BMP["BMP390<br/>Pressure Sensor"]
-    RFM["RFM69<br/>Radio Module"]
-    SD["SD Card<br/>Module"]
-
-    ESP ---|"Power<br/>3.3V + GND"| BMP
-    ESP <-->|"I2C Data<br/>SDA = GPIO 8<br/>SCL = GPIO 9"| BMP
-
-    ESP ---|"Power<br/>3.3V + GND"| RFM
-    ESP -->|"SPI Out<br/>SCK = GPIO 10<br/>MOSI = GPIO 11<br/>CS = GPIO 7"| RFM
-    RFM -->|"SPI In<br/>MISO = GPIO 12"| ESP
-    RFM -.->|"Interrupt<br/>INT = GPIO 6"| ESP
-
-    ESP ---|"Power<br/>3.3V + GND"| SD
-    ESP -->|"SPI Out<br/>SCK = GPIO 10<br/>MOSI = GPIO 11<br/>CS = GPIO 5"| SD
-    SD -->|"SPI In<br/>MISO = GPIO 12"| ESP
-```
-
-**How to read this diagram:**
+**How to read every diagram on this page:**
 | Line style | Meaning |
 |---|---|
-| `———` (no arrowhead) | Power connection — 3.3V and GND, no signal |
-| `──▶` (solid arrow) | Data or control signal traveling in the arrow's direction |
-| `◀─▶` (double arrow) | I2C bus — same two wires carry data both ways |
+| `──▶` (solid arrow) | A wire carrying a signal, pointing the direction it travels |
 | `┄┄▶` (dashed arrow) | Interrupt — the device signals the ESP32 asynchronously |
 
-**Reading example:** The line from ESP32 to RFM69 labeled "SPI Out" means the ESP32 is *sending* clock, data, and chip-select signals to the radio. The separate "SPI In" line means the radio is *sending data back* on the MISO wire. That's why SPI needs two lines here even though it's "one bus" — data flows in both directions, just on different physical wires.
+**1. BMP390 Pressure Sensor — wire this first (I2C, isolated bus, nothing shared)**
+
+```mermaid
+flowchart TD
+    ESP["ESP32-C61"]
+    BMP["BMP390"]
+
+    ESP -->|"3.3V"| BMP
+    ESP -->|"GND"| BMP
+    ESP -->|"SDA  →  GPIO 8"| BMP
+    BMP -->|"SDA  →  GPIO 8"| ESP
+    ESP -->|"SCL  →  GPIO 9"| BMP
+```
+*SDA carries data both directions on the same wire — that's normal for I2C, not a wiring mistake.*
+
+**2. RFM69 Radio — wire second (shares the SPI bus with the SD card below)**
+
+```mermaid
+flowchart TD
+    ESP["ESP32-C61"]
+    RFM["RFM69 Radio"]
+
+    ESP -->|"3.3V"| RFM
+    ESP -->|"GND"| RFM
+    ESP -->|"SCK  →  GPIO 10"| RFM
+    ESP -->|"MOSI  →  GPIO 11"| RFM
+    RFM -->|"MISO  →  GPIO 12"| ESP
+    ESP -->|"CS  →  GPIO 7"| RFM
+    RFM -.->|"INT  →  GPIO 6"| ESP
+```
+
+**3. SD Card Module — wire third (same SCK/MOSI/MISO pins as the radio, different CS)**
+
+```mermaid
+flowchart TD
+    ESP["ESP32-C61"]
+    SD["SD Card Module"]
+
+    ESP -->|"3.3V"| SD
+    ESP -->|"GND"| SD
+    ESP -->|"SCK  →  GPIO 10"| SD
+    ESP -->|"MOSI  →  GPIO 11"| SD
+    SD -->|"MISO  →  GPIO 12"| ESP
+    ESP -->|"CS  →  GPIO 5"| SD
+```
+*Notice SCK, MOSI, and MISO here are the exact same pins as the radio's diagram above — that's the shared SPI bus. Only CS is different (GPIO 5 instead of GPIO 7), which is what lets the ESP32 talk to one device without the other interfering.*
 
 **Bus Sharing Summary:**
 
