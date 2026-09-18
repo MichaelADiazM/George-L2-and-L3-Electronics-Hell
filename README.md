@@ -90,10 +90,12 @@ idf.py monitor  # View serial output
 This diagram is generated from the real pin definitions in [`main/config.h`](main/config.h) and each board's actual pinout — if you change a pin in `config.h`, update this diagram to match (the source is [`docs/wiring-diagram.svg`](docs/wiring-diagram.svg), plain text/XML, editable in any text editor).
 
 **How to read it:**
-- Colored dots on each board are physical pins; the label next to each dot is that pin's name as printed on the board's silkscreen
+- The ESP32-C61-DevKitC-1 has two pin header columns (left and right), matching its real silkscreen layout — this diagram shows **both**, in the same top-to-bottom order as the physical board, not a simplified single-sided version
+- **BMP390 connects to the right header** (GPIO 27/28); **RFM69 and the SD card connect to the left header** (GPIO 2/4/5/6/7/8) — both sides of the board are genuinely in use
+- Colored, bold dots are pins this project uses; small gray dots are real pins that exist on the board but aren't wired up — shown so you can confirm you're not missing a connection, not so you wire them
 - Lines are wires, color-coded by signal type (see legend on the diagram)
 - The SPI lines (green — SCK/MOSI/MISO) branch to *both* the radio and the SD card, because they share one bus. Only the Chip Select (orange) line is unique per device — that's what lets the ESP32 address one without disturbing the other
-- Gray dots/pins are present on the board but intentionally left unconnected — noted so you don't wonder if you're missing a wire
+- The dashed red line to BMP390's power pin is intentional, not a mistake: this DevKitC-1 doesn't expose a 3.3V pin on its right header, so that one wire has to run from the left header's 3V3 pin, over the top of the board
 
 #### Bus Sharing Summary
 
