@@ -22,7 +22,7 @@ Data is simultaneously:
 
 **Why this design?**
 - **Redundancy:** SD card works even if radio fails
-- **Timing:** Pressure readings at configurable intervals (default: 50ms)
+- **Timing:** Pressure readings at configurable intervals (default: 20ms, via `BMP_READ_INTERVAL_MS`)
 - **Wireless:** RFM69 transmits every 2nd reading, reducing power draw
 - **Testing:** Built-in HTTP server for preflight verification
 
@@ -46,18 +46,12 @@ Edit `main/config.h` to set your:
 - WiFi SSID/password
 - I2C pins (SDA/SCL for BMP390)
 - SPI pins (for RFM69 radio + SD card)
-- Read interval (default 50ms is fine)
+- Read interval (default 20ms is fine)
 
 **Step 3: Build & Flash**
 
-*Using Arduino IDE:*
-```
-File → Open → main/main.ino
-Select Tools → Board: "ESP32-C61"
-Click Upload
-```
+This project builds via **ESP-IDF only** — the ESP32-C61 is not yet a selectable board in Arduino IDE's Boards Manager (as of this writing), which is exactly why this project is structured as an ESP-IDF project with Arduino included as a component (`components/arduino`), rather than a plain Arduino sketch.
 
-*Using ESP-IDF:*
 ```bash
 idf.py build
 idf.py flash
@@ -66,86 +60,50 @@ idf.py monitor  # View serial output
 
 **Step 4: Verify**
 1. Open Serial Monitor (115200 baud)
-2. You should see:
+2. You should see something like:
    ```
    [main] Starting...
-   [main: sensor] Sensor init OK
-   [main: server] Server init OK
-   [main: logger] Logger init OK
-   [main: radio] Radio init OK
+   [sensor] BMP390 Ready.
+   [server] AP IP: 192.168.4.1
+   [server] Connected to <your network name>
+   [server] IP address: <assigned IP>
+   [server] MDNS responder started
+   [server] HTTP server started
    ```
-3. Visit `http://esp32.local/` to see live pressure/temperature
+   Note: the logger and radio modules currently only print a message on **failure** (e.g. `[logger] SD card initialization failed.`), not on success — so if you don't see a logger/radio error, they initialized fine, even though there's no explicit confirmation line yet. If any `initModule()` call fails, you'll see `[main: <module>] Init failed. <hint>` and the board halts.
+3. Visit `http://esp32.local:8080/` to see live pressure/temperature (note the port — `HTTP_PORT` in `config.h` is set to `8080`, not the default 80)
 
 ---
 
 ### Hardware Wiring Guide
 
-#### Pin Connection Overview
+**Hardware used:**
+- **MCU:** Espressif ESP32-C61-DevKitC-1
+- **Pressure sensor:** Adafruit BMP390 (STEMMA QT breakout)
+- **Radio:** Adafruit RFM69HCW Breakout (900 MHz)
+- **Storage:** Generic microSD SPI breakout module
 
-Wire one device at a time. Each diagram below shows only that device's connections — follow it top to bottom (power first, then signal wires) and you won't have to trace overlapping lines.
+#### Wiring Diagram
 
-**How to read every diagram on this page:**
-| Line style | Meaning |
-|---|---|
-| `──▶` (solid arrow) | A wire carrying a signal, pointing the direction it travels |
-| `┄┄▶` (dashed arrow) | Interrupt — the device signals the ESP32 asynchronously |
+![Wiring diagram: ESP32-C61-DevKitC-1 connected to BMP390, RFM69HCW, and microSD module](docs/wiring-diagram.svg)
 
-**1. BMP390 Pressure Sensor — wire this first (I2C, isolated bus, nothing shared)**
+This diagram is generated from the real pin definitions in [`main/config.h`](main/config.h) and each board's actual pinout — if you change a pin in `config.h`, update this diagram to match (the source is [`docs/wiring-diagram.svg`](docs/wiring-diagram.svg), plain text/XML, editable in any text editor).
 
-```mermaid
-flowchart TD
-    ESP["ESP32-C61"]
-    BMP["BMP390"]
+**How to read it:**
+- Colored dots on each board are physical pins; the label next to each dot is that pin's name as printed on the board's silkscreen
+- Lines are wires, color-coded by signal type (see legend on the diagram)
+- The SPI lines (green — SCK/MOSI/MISO) branch to *both* the radio and the SD card, because they share one bus. Only the Chip Select (orange) line is unique per device — that's what lets the ESP32 address one without disturbing the other
+- Gray dots/pins are present on the board but intentionally left unconnected — noted so you don't wonder if you're missing a wire
 
-    ESP -->|"3.3V"| BMP
-    ESP -->|"GND"| BMP
-    ESP -->|"SDA  →  GPIO 8"| BMP
-    BMP -->|"SDA  →  GPIO 8"| ESP
-    ESP -->|"SCL  →  GPIO 9"| BMP
-```
-*SDA carries data both directions on the same wire — that's normal for I2C, not a wiring mistake.*
-
-**2. RFM69 Radio — wire second (shares the SPI bus with the SD card below)**
-
-```mermaid
-flowchart TD
-    ESP["ESP32-C61"]
-    RFM["RFM69 Radio"]
-
-    ESP -->|"3.3V"| RFM
-    ESP -->|"GND"| RFM
-    ESP -->|"SCK  →  GPIO 10"| RFM
-    ESP -->|"MOSI  →  GPIO 11"| RFM
-    RFM -->|"MISO  →  GPIO 12"| ESP
-    ESP -->|"CS  →  GPIO 7"| RFM
-    RFM -.->|"INT  →  GPIO 6"| ESP
-```
-
-**3. SD Card Module — wire third (same SCK/MOSI/MISO pins as the radio, different CS)**
-
-```mermaid
-flowchart TD
-    ESP["ESP32-C61"]
-    SD["SD Card Module"]
-
-    ESP -->|"3.3V"| SD
-    ESP -->|"GND"| SD
-    ESP -->|"SCK  →  GPIO 10"| SD
-    ESP -->|"MOSI  →  GPIO 11"| SD
-    SD -->|"MISO  →  GPIO 12"| ESP
-    ESP -->|"CS  →  GPIO 5"| SD
-```
-*Notice SCK, MOSI, and MISO here are the exact same pins as the radio's diagram above — that's the shared SPI bus. Only CS is different (GPIO 5 instead of GPIO 7), which is what lets the ESP32 talk to one device without the other interfering.*
-
-**Bus Sharing Summary:**
+#### Bus Sharing Summary
 
 ```
-I2C Bus (GPIO 8, 9):
-  └─ BMP390 Sensor (Address: 0x77)
+I2C Bus (GPIO 28 = SDA, GPIO 27 = SCL):
+  └─ BMP390 Sensor — isolated, nothing else on this bus
 
-SPI Bus (GPIO 10, 11, 12) - SHARED:
-  ├─ RFM69 Radio (CS: GPIO 7, INT: GPIO 6)
-  └─ SD Card Module (CS: GPIO 5)
+SPI Bus (GPIO 6 = SCK, GPIO 7 = MOSI, GPIO 2 = MISO) — SHARED:
+  ├─ RFM69HCW Radio  (CS: GPIO 5, IRQ: GPIO 8)
+  └─ SD Card Module  (CS: GPIO 4)
 
 Power:
   ├─ All modules: 3.3V + GND
@@ -153,55 +111,77 @@ Power:
 ```
 
 **Key Notes:**
-- ⚠️ **GPIO 10, 11, 12 are shared** between radio and SD card (same SPI bus)
-- ✅ Each has its own **Chip Select (CS)** pin so they don't conflict
-- ✅ I2C bus is **isolated** (only BMP390)
-- ✅ Pull-ups on I2C lines (typically 4.7kΩ resistors, already on sensor module)
+- ⚠️ **GPIO 6, 7, 2 are shared** between the radio and SD card (same SPI bus) — this is intentional, not a wiring conflict
+- ✅ Each device has its own **Chip Select (CS)** pin so they never talk over each other
+- ✅ I2C bus is **isolated** (only the BMP390 is on it)
+- ✅ If you change any pin in `config.h`, the diagram and tables below must be updated to match — they are documentation, not the source of truth (the code is)
 
 ---
 
-#### BMP390 Pressure Sensor (I2C)
-| BMP390 | ESP32-C61 | Purpose |
-|--------|-----------|---------|
-| VCC    | 3.3V      | Power   |
-| GND    | GND       | Ground  |
-| SDA    | GPIO 8    | I2C Data|
-| SCL    | GPIO 9    | I2C Clock|
+#### Full Pinout Reference
 
-#### RFM69 Radio Module (SPI)
-| RFM69  | ESP32-C61 | Purpose |
-|--------|-----------|---------|
-| VCC    | 3.3V      | Power   |
-| GND    | GND       | Ground  |
-| MOSI   | GPIO 11   | SPI Data Out |
-| MISO   | GPIO 12   | SPI Data In  |
-| SCK    | GPIO 10   | SPI Clock    |
-| CS     | GPIO 7    | Chip Select  |
-| INT    | GPIO 6    | Interrupt    |
+These tables list **every** pin on each physical board — including ones this project doesn't use — so you know what's safe to leave alone and what a stray wire actually does.
 
-#### SD Card Module (SPI, shared bus with RFM69)
-| SD Mod | ESP32-C61 | Purpose |
-|--------|-----------|---------|
-| VCC    | 3.3V      | Power   |
-| GND    | GND       | Ground  |
-| MOSI   | GPIO 11   | SPI Data (shared) |
-| MISO   | GPIO 12   | SPI Data (shared) |
-| SCK    | GPIO 10   | SPI Clock (shared) |
-| CS     | GPIO 5    | Chip Select (separate) |
+**ESP32-C61-DevKitC-1 — pins used by this project**
 
-**Note:** MOSI, MISO, SCK are shared between RFM69 and SD card. Each has its own CS pin.
+| GPIO | Signal | Connects to |
+|------|--------|-------------|
+| 3V3  | Power  | All 3 peripherals |
+| GND  | Ground | All 3 peripherals |
+| GPIO 28 | I2C SDA | BMP390 SDI |
+| GPIO 27 | I2C SCL | BMP390 SCK |
+| GPIO 6  | SPI SCK  | RFM69 SCK + SD Card SCK (shared) |
+| GPIO 7  | SPI MOSI | RFM69 MOSI + SD Card MOSI (shared) |
+| GPIO 2  | SPI MISO | RFM69 MISO + SD Card MISO (shared) |
+| GPIO 5  | Chip Select | RFM69 CS |
+| GPIO 8  | Interrupt | RFM69 G0 (IRQ) |
+| GPIO 4  | Chip Select | SD Card CS |
+
+*All other GPIOs on the board are free for future expansion (e.g., a buzzer, status LED, or additional sensor).*
+
+**BMP390 (Adafruit STEMMA QT breakout) — all 7 header pins**
+
+| Pin | Purpose | Wired? |
+|-----|---------|--------|
+| VIN | Power in (3–5V, onboard regulator) | ✅ → 3V3 |
+| 3Vo | Regulated 3.3V output | ❌ Not used |
+| GND | Ground | ✅ → GND |
+| SCK | I2C clock (= SCL) | ✅ → GPIO 27 |
+| SDI | I2C data (= SDA) | ✅ → GPIO 28 |
+| SDO | I2C address select | ❌ Leave as board default, or check with an I2C scanner if the sensor isn't found at the expected address (0x76 vs 0x77) |
+| CS  | Chip select — pull high/leave open for I2C mode | ❌ Leave unconnected |
+
+**RFM69HCW (Adafruit Breakout, 900 MHz) — all 10 header pins**
+
+| Pin | Purpose | Wired? |
+|-----|---------|--------|
+| VIN | Power in | ✅ → 3V3 |
+| GND | Ground | ✅ → GND |
+| EN  | Enable (internal pull-up = enabled by default) | ❌ Not used |
+| G0  | Interrupt / packet-ready signal | ✅ → GPIO 8 |
+| SCK | SPI clock | ✅ → GPIO 6 |
+| MISO | SPI data out (device → ESP32) | ✅ → GPIO 2 |
+| MOSI | SPI data in (ESP32 → device) | ✅ → GPIO 7 |
+| CS  | Chip select | ✅ → GPIO 5 |
+| RST | Manual reset (optional) | ❌ Not used |
+| ANT | Antenna connection point (not a header pin — solder ~3.1in wire for 915 MHz) | ⚠️ Required, but not a wire to the ESP32 |
+
+**MicroSD Module (generic SPI breakout) — all 6 pins**
+
+| Pin | Purpose | Wired? |
+|-----|---------|--------|
+| GND | Ground | ✅ → GND |
+| VCC | Power in — **check your specific board**; some are 5V-only with onboard regulator, others expect 3.3V directly | ✅ → 3V3 (verify first!) |
+| MISO | SPI data out | ✅ → GPIO 2 |
+| MOSI | SPI data in | ✅ → GPIO 7 |
+| SCK | SPI clock | ✅ → GPIO 6 |
+| CS  | Chip select | ✅ → GPIO 4 |
 
 ---
 
 ### Building the Project
 
-#### Option A: Arduino IDE (Easiest)
-1. Install ESP32 board support via Boards Manager
-2. Open `main/main.ino`
-3. Select Board: **ESP32-C61** (or closest variant)
-4. Click **Upload**
-
-#### Option B: ESP-IDF from Command Line (Recommended for CI/CD)
+This project builds via **ESP-IDF only.** The ESP32-C61 is not yet a selectable board in Arduino IDE's Boards Manager, so a plain Arduino sketch isn't an option here — instead, this project is an ESP-IDF project with Arduino included as a component (`components/arduino`), giving you the familiar `setup()`/`loop()` API while ESP-IDF handles the actual chip support.
 
 **First-time setup:**
 ```bash
@@ -278,7 +258,8 @@ idf.py -p COM3 flash
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | "Port not found" | Board not connected | Check USB cable; try different port |
-| Sensor reads all zeros | I2C wiring wrong | Verify GPIO 8/9; check pull-ups (4.7kΩ typical) |
+| Sensor reads all zeros | I2C wiring wrong | Verify GPIO 27/28 (see wiring diagram); check pull-ups (4.7kΩ typical) |
+| Sensor not found on boot | Wrong I2C address | BMP390 may be at 0x76 or 0x77 depending on SDO pin — run `main/i2c_scanner_test.ino.bak` (rename to `.ino` in its own sketch folder) to confirm which address responds |
 | Radio transmits but not received | Wrong frequency | Check `config.h` RFM69_FREQUENCY_MHZ matches receiver |
 | SD card not logging | SD card not inserted | Insert and format to FAT32 |
 | WiFi dashboard not loading | Not on same network | Check config.h SSID/password |
@@ -299,14 +280,14 @@ graph TD
     
     ESP32["ESP32-C61<br/>Main Processor"]
     
-    BMP390 -->|I2C: GPIO 8/9| ESP32
-    RFM69 -->|SPI: GPIO 10/11/12| ESP32
-    SDCARD -->|SPI: GPIO 10/11/12| ESP32
+    BMP390 -->|I2C: GPIO 27/28| ESP32
+    RFM69 -->|SPI: GPIO 2/6/7| ESP32
+    SDCARD -->|SPI: GPIO 2/6/7| ESP32
     WiFi -->|Internal| ESP32
     
-    ESP32 --> SENSOR["sensor.cpp<br/>Read BMP390 every 50ms"]
+    ESP32 --> SENSOR["sensor.cpp<br/>Read BMP390 every 20ms"]
     ESP32 --> LOGGER["logger.cpp<br/>Buffer & flush every 1s"]
-    ESP32 --> RADIO["radio.cpp<br/>Transmit every 100ms"]
+    ESP32 --> RADIO["radio.cpp<br/>Transmit every 40ms"]
     ESP32 --> SERVER["server.cpp<br/>HTTP requests"]
 ```
 
@@ -314,7 +295,7 @@ graph TD
 1. **Interrupt-driven I2C/SPI** — Sensors and radio don't block the main loop
 2. **Ring buffer logging** — Readings buffered in RAM, flushed to SD periodically
 3. **Non-blocking HTTP** — Server handles requests without pausing sensor reads
-4. **Polling interval (50ms)** — Chosen to match BMP390's ~100Hz output data rate
+4. **Polling interval (20ms, set by `BMP_READ_INTERVAL_MS`)** — Note: this is *faster* than the BMP390's configured output data rate (`BMP3_ODR_25_HZ` = a new sample every 40ms in `sensor.cpp`), so some polls will re-read the same underlying sample. This isn't necessarily wrong (it bounds worst-case latency), but it's worth knowing if you're tuning for power or exact sample timing.
 
 ---
 
@@ -343,11 +324,13 @@ struct BmpReading {
 
 **Altitude Calculation:**
 Uses the barometric formula: `h = 44330 × (1 - (P/P0)^(1/5.255))`
-where P = current pressure, P0 = sea level reference (typically 1013.25 hPa)
+where P = current pressure, P0 = sea level reference pressure. In this codebase, P0 is set via `SEALEVELPRESSURE_HPA` in `sensor.cpp`, hardcoded to `1013.25` hPa — the standard ICAO reference value (the same default used in Adafruit's own example code).
+
+**Why this matters:** actual sea-level pressure varies day to day and place to place with the weather — it isn't always exactly 1013.25 hPa. Because P0 is fixed at compile time rather than measured on launch day, the altitude this code reports is *relative to the standard atmosphere*, not necessarily *relative to the ground you're launching from*. In practice this mostly shows up as a constant offset (your "altitude" at the pad might read as some nonzero value instead of 0), which is usually fine for tracking *relative* altitude gain during flight, but worth knowing if you need absolute AGL accuracy — you'd want to read the current local QNH before launch and update `SEALEVELPRESSURE_HPA`, or better, zero the altitude against the launch-pad reading in software.
 
 **I2C Interface:**
-- Address: 0x77 (default)
-- Pins: GPIO 8 (SDA), GPIO 9 (SCL)
+- Address: 0x77 (default) or 0x76, depending on the SDO pin — confirm with `main/i2c_scanner_test.ino.bak` (rename to `.ino` in its own sketch folder) if the sensor isn't detected
+- Pins: GPIO 28 (SDA), GPIO 27 (SCL)
 - Sample rate: Configurable via BMP390 OSR (over-sampling ratio)
 
 ---
@@ -365,9 +348,9 @@ void flushLogs();                                       // Write buffer to SD
 
 **Why buffering?**
 - SD card writes are slow (~milliseconds per write)
-- Reading every 50ms = 20 reads/second
+- Reading every 20ms (per `BMP_READ_INTERVAL_MS` in `config.h`) = 50 reads/second
 - Buffering avoids blocking the sensor loop
-- Flushed every 1 second = ~20 readings batched per write
+- Flushed every 1 second = ~50 readings batched per write
 
 **File Format:**
 Logs stored in `readings.csv` on SD card:
@@ -379,8 +362,8 @@ timestamp,temperatureC,pressureHpa,altitudeM
 ```
 
 **SD Card Interface:**
-- SPI bus (GPIO 10/11/12 shared with radio)
-- CS pin: GPIO 5 (separate from radio)
+- SPI bus (GPIO 6/7/2 = SCK/MOSI/MISO, shared with radio)
+- CS pin: GPIO 4 (separate from radio's GPIO 5)
 - File system: FAT32 (Arduino's SD library expects this)
 
 ---
@@ -406,14 +389,14 @@ struct __attribute__((packed)) RadioPacket {
 ```
 
 **Transmission Strategy:**
-- Transmits every 2nd reading (every 100ms, not every 50ms)
+- Transmits every 2nd reading (every 40ms, given the 20ms `BMP_READ_INTERVAL_MS`)
 - Reduces power draw and RF congestion
 - Ground station can request retransmit if packet lost
 
 **RFM69 Interface:**
-- SPI bus (GPIO 10/11/12 shared with SD card)
-- CS pin: GPIO 7 (separate)
-- Interrupt pin: GPIO 6 (packet ready signal)
+- SPI bus (GPIO 6/7/2 = SCK/MOSI/MISO, shared with SD card)
+- CS pin: GPIO 5 (separate from SD card's GPIO 4)
+- Interrupt pin: GPIO 8 (packet ready signal)
 - Frequency: 915 MHz (configurable via config.h)
 - Data rate: 250 kbps (RadioHead default)
 
@@ -423,16 +406,19 @@ struct __attribute__((packed)) RadioPacket {
 
 **Responsibility:** HTTP server for live telemetry viewing during testing.
 
-**Routes:**
+**Routes (as actually implemented in `server.cpp`):**
 ```
-GET /           → HTML page with live readings (auto-refresh every 5s)
-GET /data       → JSON: { "tempC": 22.5, "pressHpa": 1013.25, "altM": 125.0 }
+GET /   → HTML "Ground Station" page showing Pressure (hPa), Temperature (°C), Altitude (m)
+          Auto-refreshes every 4 seconds via <meta http-equiv='refresh' content='4'>
 ```
+There is currently **no `/data` JSON endpoint** — only the `/` HTML page exists. (An earlier version of this doc incorrectly documented a `/data` route; if you want one, `server.cpp`'s `handleRoot()` is the place to add a second `server.on(...)` handler.)
 
 **WiFi Interface:**
-- Modes: STA (connect to external AP) or AP (broadcast own network)
-- Default AP SSID: "RocketSensor", Password: see config.h
-- MDNS: Responds to `http://esp32.local/`
+- Mode: `WIFI_AP_STA` — the ESP32 runs **both simultaneously**: it broadcasts its own access point *and* connects to an existing network at the same time. It is not an either/or choice.
+- AP SSID/password: `AP_SSID` / `AP_PASS` in `config.h` (currently `"rocketfinder"` / `"findmefather"`) — the ESP32's own AP IP is the standard `192.168.4.1`
+- STA network: connects to `NETWORK_SSID` / `NETWORK_PASS` in `config.h`; if it can't connect within `WIFI_TIMEOUT_MS` (10 seconds), `initServer()` returns `false` and the board halts
+- Server port: `HTTP_PORT` in `config.h` (currently `8080`, not the default port 80)
+- MDNS hostname: registered as `"esp32"` — responds to `http://esp32.local:8080/` (the port must be included, since it's non-default)
 
 **Use Case:**
 - Pre-flight check: Verify sensor readings are sensible
@@ -481,25 +467,27 @@ When someone clones with `git clone --recursive`, they get exact versions you te
 ```
 main loop():
   T=0ms:     Call handleClients()      ← Process any HTTP requests
-  T=0ms:     Check if 50ms elapsed
-  T=0-50ms:  If yes: Read sensor
+  T=0ms:     Check if BMP_READ_INTERVAL_MS (20ms) elapsed
+  T=0-20ms:  If yes: Read sensor
              - readBmp() via I2C
              - logReading() to RAM buffer
              - printBmpReading() to Serial
-             - Every 2nd read: transmitReading() via SPI
-  T=50ms:    Check if 1000ms elapsed
-  T=50ms:    If yes: flushLogs()       ← Write RAM buffer to SD card
-  T=50ms:    Loop back to start
+             - Every 2nd read (i.e. every 40ms): transmitReading() via SPI
+  T=20ms:    Check if 1000ms elapsed (hardcoded in main.cpp, not a config.h value)
+  T=20ms:    If yes: flushLogs()       ← Write RAM buffer to SD card
+  T=20ms:    Loop back to start
 ```
 
-**Timing Constraints:**
-- `readBmp()`: ~5ms (I2C communication)
-- `logReading()`: ~1μs (RAM write)
-- `transmitReading()`: ~50ms (SPI + radio transmission)
-- `flushLogs()`: ~100ms (SD card I/O, blocks loop!)
+**Timing Constraints (approximate — not independently measured on this hardware):**
+- `readBmp()`: a few ms (I2C communication; exact time depends on the configured oversampling — currently 8x temp / 4x pressure)
+- `logReading()`: sub-microsecond (RAM write)
+- `transmitReading()`: on the order of a few ms for a 16-byte packet at RadioHead's 250 kbps default, plus preamble/sync overhead
+- `flushLogs()`: highly variable, SD card dependent — can be tens of ms
 - `handleClients()`: Variable (depends on HTTP requests)
 
-**Important:** The `flushLogs()` call can block for up to 100ms. During that time, sensor reads are delayed, but the design tolerates this because the buffer already holds the missing samples.
+**Important:** The BMP390 is configured for a 25 Hz output data rate (`BMP3_ODR_25_HZ` in `sensor.cpp`, i.e. a new sample roughly every 40ms), but the loop polls it every 20ms (`BMP_READ_INTERVAL_MS`). That means roughly every other poll can return the same underlying sample rather than fresh data. Not a bug — it bounds worst-case read latency — but worth knowing if you're correlating timestamps to real-world sensor updates.
+
+Separately, `flushLogs()` can block the loop for a nontrivial, SD-card-dependent duration. During that time, sensor reads are delayed, but the design tolerates this because the buffer already holds the missing samples.
 
 ---
 
@@ -517,27 +505,27 @@ sequenceDiagram
     participant SD
     
     Main->>Server: handleClients()
-    Main->>Sensor: 50ms elapsed?
-    Sensor->>Sensor: readBmp() via I2C (5ms)
+    Main->>Sensor: 20ms elapsed?
+    Sensor->>Sensor: readBmp() via I2C
     Sensor-->>Main: BmpReading
     Main->>Logger: logReading()
-    Logger->>Logger: buffer in RAM (1μs)
+    Logger->>Logger: buffer in RAM
     Main->>Sensor: printBmpReading()
     Sensor-->>Main: Serial output
     Main->>Radio: readCount % 2 == 0?
-    Radio->>Radio: transmitReading() (50ms)
+    Radio->>Radio: transmitReading()
     Radio-->>Radio: Packet sent at 915MHz
     
     Note over Main,SD: 1000ms elapsed?
     Main->>Logger: flushLogs()
-    Logger->>SD: Write buffer to SD (100ms)
+    Logger->>SD: Write buffer to SD
     SD-->>Logger: Done
 ```
 
 **Key insight:** Modules operate **asynchronously** on different timescales:
-- Sensor: every 50ms
-- Radio: every 100ms
-- Logger flush: every 1000ms
+- Sensor: every 20ms (`BMP_READ_INTERVAL_MS`)
+- Radio: every 40ms (every 2nd sensor reading)
+- Logger flush: every 1000ms (hardcoded in `main.cpp`)
 - HTTP: whenever a request comes in
 
 This is why each module has its own timer (not a central scheduler).
@@ -550,36 +538,41 @@ Edit `main/config.h` to customize behavior:
 
 ```cpp
 // ── WiFi ──
-#define NETWORK_SSID "MyNetwork"
-#define NETWORK_PASS "password"
-#define AP_SSID "RocketSensor"
-#define AP_PASS "rocket123"
+#define NETWORK_SSID   "networkname"
+#define NETWORK_PASS   "password"
+#define AP_SSID        "rocketfinder"
+#define AP_PASS        "findmefather"
+#define WIFI_TIMEOUT_MS 10000
 
 // ── Sensor ──
-#define I2C_SDA_PIN 8
-#define I2C_SCL_PIN 9
-#define BMP_READ_INTERVAL_MS 50          // Read every 50ms
-#define AP_SHUTOFF_ALTITUDE_M 10000      // Stop logging if above 10km (safety)
+#define I2C_SDA_PIN 28
+#define I2C_SCL_PIN 27
+
+#define MISO_PIN 2
+#define MOSI_PIN 7
+#define SCK_PIN 6
+#define RFM69_CS_PIN 5
+#define RFM69_INT_PIN 8
+#define SD_CS_PIN 4
+
+// Poll interval: BMP390 output data rate at current OSR settings
+#define BMP_READ_INTERVAL_MS 20
+
+// Threshold for AP shutoff according to altitude
+#define AP_SHUTOFF_ALTITUDE_M 0
 
 // ── Radio ──
-#define RFM69_FREQUENCY_MHZ 915.0        // Must match receiver
-#define RFM69_CS_PIN 7
-#define RFM69_INT_PIN 6
-#define MOSI_PIN 11
-#define MISO_PIN 12
-#define SCK_PIN 10
-
-// ── SD Card ──
-#define SD_CS_PIN 5
+constexpr float RFM69_FREQUENCY_MHZ = 915.0f;
 
 // ── Server ──
-#define HTTP_PORT 80
+#define HTTP_PORT 8080
 ```
+*This block mirrors [`main/config.h`](main/config.h) exactly as of the last README update — always check the actual file if there's any doubt, since it's the single source of truth.*
 
 **Common tweaks:**
-- **Slower reads:** Change `BMP_READ_INTERVAL_MS` to 100 (reduces power)
-- **Different radio freq:** Change `RFM69_FREQUENCY_MHZ` (match your ground station)
-- **Larger altitude limit:** Change `AP_SHUTOFF_ALTITUDE_M` (if flying higher)
+- **Slower reads:** Increase `BMP_READ_INTERVAL_MS` (reduces power draw, at the cost of data resolution)
+- **Different radio freq:** Change `RFM69_FREQUENCY_MHZ` (must match your ground station's receiver)
+- **Re-enable AP altitude shutoff:** Set `AP_SHUTOFF_ALTITUDE_M` above 0 (currently disabled)
 
 ---
 
@@ -587,9 +580,10 @@ Edit `main/config.h` to customize behavior:
 
 1. **No redundancy in computation:** If sensor read fails, data is lost (could queue and retry)
 2. **SD card blocks loop:** Large flush operations pause sensor reads temporarily
-3. **HTTP server only on STA mode:** Can't browse dashboard while in AP mode
+3. **No JSON/API endpoint:** `server.cpp` only serves the `/` HTML dashboard — there's no machine-readable `/data` route, so anything wanting programmatic access (a ground-station app, a logging script) would need to scrape HTML or a new endpoint added
 4. **No data compression:** CSV logs are uncompressed (could use gzip on payload)
 5. **No telemetry encryption:** Radio packets unencrypted (add AES if needed)
+6. **Fixed sea-level pressure reference:** `SEALEVELPRESSURE_HPA` in `sensor.cpp` is hardcoded to the standard 1013.25 hPa rather than read from `config.h` or set at runtime — see the Altitude Calculation note in the Sensor Module section above
 
 ---
 
@@ -620,8 +614,7 @@ Use Arduino IDE simulator (no actual board needed for basic testing).
 ```
 Georges_RocketSensor/
 ├── main/
-│   ├── main.ino              # Entry point (calls setup() and loop())
-│   ├── main.cpp              # Actual C++ implementation
+│   ├── main.cpp               # Entry point (setup() and loop())
 │   ├── config.h              # User-configurable constants
 │   ├── sensor.h / .cpp       # BMP390 driver
 │   ├── radio.h / .cpp        # RFM69 driver

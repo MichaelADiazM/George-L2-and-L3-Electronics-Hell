@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 980" font-family="Consolas, 'Courier New', monospace">
+  <!-- Background card so it reads on both light and dark GitHub themes -->
+  <rect x="0" y="0" width="1150" height="980" fill="#ffffff" stroke="#d0d7de" stroke-width="1" rx="8"/>
+
+  <!-- Title -->
+  <text x="575" y="34" text-anchor="middle" font-size="20" font-weight="bold" fill="#1a1a1a">Wiring Diagram — ESP32-C61-DevKitC-1</text>
+  <text x="575" y="54" text-anchor="middle" font-size="12" fill="#57606a" font-style="italic">GPIO numbers match main/config.h — verify against your board's silkscreen before powering on</text>
+
+  <!-- ============ ESP32-C61-DevKitC-1 ============ -->
+  <rect x="50" y="100" width="230" height="670" rx="12" fill="#eef3f8" stroke="#2c3e50" stroke-width="2"/>
+  <text x="165" y="130" text-anchor="middle" font-size="16" font-weight="bold" fill="#1a1a1a">ESP32-C61</text>
+  <text x="165" y="148" text-anchor="middle" font-size="12" fill="#57606a">DevKitC-1</text>
+
+  <!-- ESP32 pins: circle at x=280 (right edge), label ending near x=270 -->
+  <!-- 3V3 -->
+  <circle cx="280" cy="195" r="5" fill="#d32f2f"/>
+  <text x="270" y="199" text-anchor="end" font-size="13" fill="#1a1a1a">3V3</text>
+  <!-- GND -->
+  <circle cx="280" cy="245" r="5" fill="#212121"/>
+  <text x="270" y="249" text-anchor="end" font-size="13" fill="#1a1a1a">GND</text>
+  <!-- GPIO28 SDA -->
+  <circle cx="280" cy="310" r="5" fill="#1565c0"/>
+  <text x="270" y="306" text-anchor="end" font-size="13" fill="#1a1a1a">GPIO 28</text>
+  <text x="270" y="320" text-anchor="end" font-size="11" fill="#57606a">I2C SDA</text>
+  <!-- GPIO27 SCL -->
+  <circle cx="280" cy="370" r="5" fill="#1565c0"/>
+  <text x="270" y="366" text-anchor="end" font-size="13" fill="#1a1a1a">GPIO 27</text>
+  <text x="270" y="380" text-anchor="end" font-size="11" fill="#57606a">I2C SCL</text>
+  <!-- GPIO6 SCK -->
+  <circle cx="280" cy="430" r="5" fill="#2e7d32"/>
+  <text x="270" y="426" text-anchor="end" font-size="13" fill="#1a1a1a">GPIO 6</text>
+  <text x="270" y="440" text-anchor="end" font-size="11" fill="#57606a">SPI SCK</text>
+  <!-- GPIO7 MOSI -->
+  <circle cx="280" cy="490" r="5" fill="#2e7d32"/>
+  <text x="270" y="486" text-anchor="end" font-size="13" fill="#1a1a1a">GPIO 7</text>
+  <text x="270" y="500" text-anchor="end" font-size="11" fill="#57606a">SPI MOSI</text>
+  <!-- GPIO2 MISO -->
+  <circle cx="280" cy="550" r="5" fill="#2e7d32"/>
+  <text x="270" y="546" text-anchor="end" font-size="13" fill="#1a1a1a">GPIO 2</text>
+  <text x="270" y="560" text-anchor="end" font-size="11" fill="#57606a">SPI MISO</text>
+  <!-- GPIO5 RFM CS -->
+  <circle cx="280" cy="610" r="5" fill="#e65100"/>
+  <text x="270" y="606" text-anchor="end" font-size="13" fill="#1a1a1a">GPIO 5</text>
+  <text x="270" y="620" text-anchor="end" font-size="11" fill="#57606a">Radio CS</text>
+  <!-- GPIO8 RFM INT -->
+  <circle cx="280" cy="670" r="5" fill="#6a1b9a"/>
+  <text x="270" y="666" text-anchor="end" font-size="13" fill="#1a1a1a">GPIO 8</text>
+  <text x="270" y="680" text-anchor="end" font-size="11" fill="#57606a">Radio INT</text>
+  <!-- GPIO4 SD CS -->
+  <circle cx="280" cy="730" r="5" fill="#e65100"/>
+  <text x="270" y="726" text-anchor="end" font-size="13" fill="#1a1a1a">GPIO 4</text>
+  <text x="270" y="740" text-anchor="end" font-size="11" fill="#57606a">SD Card CS</text>
+
+  <!-- ============ BMP390 (Adafruit STEMMA QT) ============ -->
+  <rect x="860" y="100" width="240" height="230" rx="12" fill="#fff3e0" stroke="#e65100" stroke-width="2"/>
+  <text x="980" y="128" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a1a">BMP390</text>
+  <text x="980" y="145" text-anchor="middle" font-size="11" fill="#57606a">Adafruit STEMMA QT breakout</text>
+
+  <circle cx="860" cy="175" r="5" fill="#d32f2f"/>
+  <text x="872" y="179" font-size="13" fill="#1a1a1a">VIN</text>
+  <circle cx="860" cy="200" r="5" fill="#9e9e9e"/>
+  <text x="872" y="204" font-size="13" fill="#1a1a1a">3Vo <tspan font-size="10" fill="#57606a">(unused, regulated out)</tspan></text>
+  <circle cx="860" cy="225" r="5" fill="#212121"/>
+  <text x="872" y="229" font-size="13" fill="#1a1a1a">GND</text>
+  <circle cx="860" cy="250" r="5" fill="#1565c0"/>
+  <text x="872" y="254" font-size="13" fill="#1a1a1a">SCK <tspan font-size="10" fill="#57606a">(= SCL)</tspan></text>
+  <circle cx="860" cy="275" r="5" fill="#1565c0"/>
+  <text x="872" y="279" font-size="13" fill="#1a1a1a">SDI <tspan font-size="10" fill="#57606a">(= SDA)</tspan></text>
+  <circle cx="860" cy="300" r="5" fill="#9e9e9e"/>
+  <text x="872" y="304" font-size="13" fill="#1a1a1a">SDO <tspan font-size="10" fill="#57606a">(addr select, see note)</tspan></text>
+  <circle cx="860" cy="320" r="4" fill="#9e9e9e"/>
+  <text x="872" y="324" font-size="11" fill="#57606a">CS — leave unconnected for I2C mode</text>
+
+  <!-- ============ RFM69HCW (Adafruit) ============ -->
+  <rect x="860" y="380" width="240" height="330" rx="12" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/>
+  <text x="980" y="408" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a1a">RFM69HCW</text>
+  <text x="980" y="425" text-anchor="middle" font-size="11" fill="#57606a">Adafruit Breakout (900MHz)</text>
+
+  <circle cx="860" cy="455" r="5" fill="#d32f2f"/>
+  <text x="872" y="459" font-size="13" fill="#1a1a1a">VIN</text>
+  <circle cx="860" cy="480" r="5" fill="#212121"/>
+  <text x="872" y="484" font-size="13" fill="#1a1a1a">GND</text>
+  <circle cx="860" cy="505" r="4" fill="#9e9e9e"/>
+  <text x="872" y="509" font-size="11" fill="#57606a">EN — unconnected (internal pull-up = enabled)</text>
+  <circle cx="860" cy="535" r="5" fill="#6a1b9a"/>
+  <text x="872" y="539" font-size="13" fill="#1a1a1a">G0 <tspan font-size="10" fill="#57606a">(IRQ / interrupt)</tspan></text>
+  <circle cx="860" cy="560" r="5" fill="#2e7d32"/>
+  <text x="872" y="564" font-size="13" fill="#1a1a1a">SCK</text>
+  <circle cx="860" cy="585" r="5" fill="#2e7d32"/>
+  <text x="872" y="589" font-size="13" fill="#1a1a1a">MISO</text>
+  <circle cx="860" cy="610" r="5" fill="#2e7d32"/>
+  <text x="872" y="614" font-size="13" fill="#1a1a1a">MOSI</text>
+  <circle cx="860" cy="635" r="5" fill="#e65100"/>
+  <text x="872" y="639" font-size="13" fill="#1a1a1a">CS</text>
+  <circle cx="860" cy="660" r="4" fill="#9e9e9e"/>
+  <text x="872" y="664" font-size="11" fill="#57606a">RST — unconnected (optional manual reset)</text>
+  <circle cx="860" cy="685" r="4" fill="#9e9e9e"/>
+  <text x="872" y="689" font-size="11" fill="#1a1a1a">ANT <tspan font-size="10" fill="#57606a">— solder ~3.1in wire, not a header pin</tspan></text>
+
+  <!-- ============ MicroSD Card Module ============ -->
+  <rect x="860" y="750" width="240" height="200" rx="12" fill="#f3e5f5" stroke="#6a1b9a" stroke-width="2"/>
+  <text x="980" y="778" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a1a1a">MicroSD Module</text>
+  <text x="980" y="795" text-anchor="middle" font-size="11" fill="#57606a">Generic SPI breakout</text>
+
+  <circle cx="860" cy="825" r="5" fill="#212121"/>
+  <text x="872" y="829" font-size="13" fill="#1a1a1a">GND</text>
+  <circle cx="860" cy="850" r="5" fill="#d32f2f"/>
+  <text x="872" y="854" font-size="13" fill="#1a1a1a">VCC <tspan font-size="10" fill="#57606a">(check board: 3.3V or 5V-tolerant)</tspan></text>
+  <circle cx="860" cy="875" r="5" fill="#2e7d32"/>
+  <text x="872" y="879" font-size="13" fill="#1a1a1a">MISO</text>
+  <circle cx="860" cy="900" r="5" fill="#2e7d32"/>
+  <text x="872" y="904" font-size="13" fill="#1a1a1a">MOSI</text>
+  <circle cx="860" cy="925" r="5" fill="#2e7d32"/>
+  <text x="872" y="929" font-size="13" fill="#1a1a1a">SCK</text>
+
+  <!-- ============ Wires ============ -->
+  <g fill="none" stroke-width="2.5">
+    <!-- Power rail (red): ESP32 3V3 -> junction -> each device VIN/VCC -->
+    <path d="M 280,195 L 500,195 L 500,175 L 860,175" stroke="#d32f2f"/>
+    <path d="M 500,195 L 500,455 L 860,455" stroke="#d32f2f"/>
+    <path d="M 500,195 L 500,850 L 860,850" stroke="#d32f2f"/>
+
+    <!-- Ground rail (black): ESP32 GND -> junction -> each device GND -->
+    <path d="M 280,245 L 530,245 L 530,225 L 860,225" stroke="#212121"/>
+    <path d="M 530,245 L 530,480 L 860,480" stroke="#212121"/>
+    <path d="M 530,245 L 530,825 L 860,825" stroke="#212121"/>
+
+    <!-- I2C: SDA, SCL to BMP390 only -->
+    <path d="M 280,310 L 860,275" stroke="#1565c0"/>
+    <path d="M 280,370 L 860,250" stroke="#1565c0"/>
+
+    <!-- SPI SCK: shared bus to RFM69 + SD card -->
+    <path d="M 280,430 L 620,430 L 620,560 L 860,560" stroke="#2e7d32"/>
+    <path d="M 620,430 L 620,925 L 860,925" stroke="#2e7d32"/>
+
+    <!-- SPI MOSI: shared bus -->
+    <path d="M 280,490 L 650,490 L 650,610 L 860,610" stroke="#2e7d32"/>
+    <path d="M 650,490 L 650,900 L 860,900" stroke="#2e7d32"/>
+
+    <!-- SPI MISO: shared bus -->
+    <path d="M 280,550 L 680,550 L 680,585 L 860,585" stroke="#2e7d32"/>
+    <path d="M 680,550 L 680,875 L 860,875" stroke="#2e7d32"/>
+
+    <!-- Radio CS (unique) -->
+    <path d="M 280,610 L 860,635" stroke="#e65100"/>
+
+    <!-- Radio INT (dashed) -->
+    <path d="M 280,670 L 860,535" stroke="#6a1b9a" stroke-dasharray="6,4"/>
+
+    <!-- SD CS (unique) -->
+    <path d="M 280,730 L 500,730 L 500,730 L 860,730" stroke="#e65100"/>
+  </g>
+
+  <!-- ============ Legend ============ -->
+  <g font-size="12" fill="#1a1a1a">
+    <text x="60" y="815" font-size="13" font-weight="bold">Legend:</text>
+
+    <circle cx="70" cy="835" r="5" fill="#d32f2f"/>
+    <text x="82" y="839">3.3V Power</text>
+    <circle cx="70" cy="858" r="5" fill="#212121"/>
+    <text x="82" y="862">Ground</text>
+    <circle cx="70" cy="881" r="5" fill="#1565c0"/>
+    <text x="82" y="885">I2C Data (SDA/SCL)</text>
+
+    <circle cx="220" cy="835" r="5" fill="#2e7d32"/>
+    <text x="232" y="839">SPI Bus (shared: SCK/MOSI/MISO)</text>
+    <circle cx="220" cy="858" r="5" fill="#e65100"/>
+    <text x="232" y="862">Chip Select (unique per device)</text>
+    <circle cx="220" cy="881" r="5" fill="#6a1b9a"/>
+    <text x="232" y="885">Interrupt (dashed = async signal)</text>
+  </g>
+
+  <text x="60" y="915" font-size="11" fill="#57606a">⚠ SPI SCK / MOSI / MISO are the same three physical wires shared between the RFM69 radio and the SD card —</text>
+  <text x="60" y="932" font-size="11" fill="#57606a">that's normal. Each device only "listens" when its own CS line is pulled low by the ESP32.</text>
+</svg>

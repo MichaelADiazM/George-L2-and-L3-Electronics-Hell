@@ -10,15 +10,15 @@
 #include <Arduino.h> 
 
 // ── WiFi ─────────────────────────────────────────────────────────────────────
-#define NETWORK_SSID   "network_name"
+#define NETWORK_SSID   "networkname"
 #define NETWORK_PASS   "password"
-#define AP_SSID        "George's Rocket Finder"
-#define AP_PASS        "FINDMEFATHER!"
+#define AP_SSID        "rocketfinder"
+#define AP_PASS        "findmefather"
 #define WIFI_TIMEOUT_MS 10000
 
 // ── Sensor ───────────────────────────────────────────────────────────────────
-#define I2C_SDA_PIN 22
-#define I2C_SCL_PIN 28
+#define I2C_SDA_PIN 28
+#define I2C_SCL_PIN 27
 
 #define MISO_PIN 2
 #define MOSI_PIN 7

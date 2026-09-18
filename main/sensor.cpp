@@ -20,7 +20,6 @@ bool initSensor() {
     Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
     
     if (!bmp.begin_I2C()) {
-        Serial.println("Could not find a valid BMP390 sensor, check wiring!");
         return false;
     }
     
