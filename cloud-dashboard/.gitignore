@@ -1,0 +1,19 @@
+# Next.js / React
+.next/
+out/
+node_modules/
+dist/
+build/
+*.pem
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
