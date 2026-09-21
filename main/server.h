@@ -18,12 +18,6 @@
  */
 bool initServer();
 
-/**
- * updateDHTReading()
- * Pushes the latest DhtReading object values into the server so that data stays current.
- * Call this every time you take a new reading.
- */
-void updateDHTReading(const DhtReading& reading);
 
 /**
  * updateBMPReading()

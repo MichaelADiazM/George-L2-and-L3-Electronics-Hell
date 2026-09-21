@@ -1,0 +1,36 @@
+// Temporary I2C scanner — rename to .ino and flash standalone to debug wiring.
+// Reports every I2C address that responds on the bus.
+#include <Wire.h>
+
+#define TEST_SDA_PIN 22
+#define TEST_SCL_PIN 28
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+  Wire.begin(TEST_SDA_PIN, TEST_SCL_PIN);
+  Serial.println("\nI2C Scanner starting...");
+}
+
+void loop() {
+  byte error, address;
+  int found = 0;
+
+  for (address = 1; address < 127; address++) {
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+
+    if (error == 0) {
+      Serial.printf("Device found at address 0x%02X\n", address);
+      found++;
+    }
+  }
+
+  if (found == 0) {
+    Serial.println("No I2C devices found. Check wiring, power, and pull-ups.");
+  } else {
+    Serial.printf("Scan complete. %d device(s) found.\n", found);
+  }
+
+  delay(3000);
+}

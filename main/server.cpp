@@ -7,72 +7,57 @@
 
 WebServer server(HTTP_PORT);
 
-static BmpReading lastBmp = {0.0f, 0.0f, false}; 
-static DhtReading lastDht = {0.0f, 0.0f, 0.0f, false};
+static BmpReading lastBmp = {0.0f, 0.0f, 0.0f,false}; 
 
 void handleRoot() {
-  char msg[1500];
+  char msg[2000];
 
-  snprintf(msg, 1500,
+  snprintf(msg, 2000,
            "<html>\
   <head>\
     <meta http-equiv='refresh' content='4'/>\
     <meta name='viewport' content='width=device-width, initial-scale=1'>\
     <link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.7.2/css/all.css' integrity='sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr' crossorigin='anonymous'>\
-    <title>ESP32 DHT Server</title>\
+    <title>Ground Station</title>\
     <style>\
     html { font-family: Arial; display: inline-block; margin: 0px auto; text-align: center;}\
     h2 { font-size: 3.0rem; }\
     p { font-size: 3.0rem; }\
     .units { font-size: 1.2rem; }\
-    .dht-labels{ font-size: 1.5rem; vertical-align:middle; padding-bottom: 15px;}\
+    .labels{ font-size: 1.5rem; vertical-align:middle; padding-bottom: 15px;}\
     </style>\
   </head>\
   <body>\
-      <h2>ESP32 DHT + BMP Server!</h2>\
-      <p>\
-        <i class='fas fa-thermometer-half' style='color:#e87b3a;'></i>\
-        <span class='dht-labels'>Temperature</span>\
-        <span>%.2f</span>\
-        <sub class='units'>&deg;F</sub>\
-      </p>\
-      <p>\
-        <i class='fas fa-thermometer-half' style='color:#ca3517;'></i>\
-        <span class='dht-labels'>Temperature</span>\
-        <span>%.2f</span>\
-        <sub class='units'>&deg;C</sub>\
-      </p>\
-      <p>\
-        <i class='fas fa-tint' style='color:#00add6;'></i>\
-        <span class='dht-labels'>Humidity</span>\
-        <span>%.2f</span>\
-        <sup class='units'>&percnt;</sup>\
-      </p>\
+      <h2>Ground Station</h2>\
       <p>\
         <i class='fas fa-tachometer-alt' style='color:#555;'></i>\
-        <span class='dht-labels'>Pressure</span>\
+        <span class='labels'>Pressure</span>\
         <span>%.2f</span>\
         <sub class='units'>hPa</sub>\
       </p>\
       <p>\
+        <i class='fas fa-thermometer-half' style='color:#e74c3c;'></i>\
+        <span class='labels'>Temperature</span>\
+        <span>%.2f</span>\
+        <sub class='units'>&deg;C</sub>\
+      </p>\
+      <p>\
         <i class='fas fa-mountain' style='color:#4a90d9;'></i>\
-        <span class='dht-labels'>Altitude</span>\
+        <span class='labels'>Altitude</span>\
         <span>%.2f</span>\
         <sub class='units'>m</sub>\
       </p>\
   </body>\
 </html>",
-          lastDht.temperatureF,
-          lastDht.temperatureC,
-          lastDht.humidity,
           lastBmp.pressure,
+          lastBmp.temperatureC,
           lastBmp.altitudeM
           );
   server.send(200, "text/html", msg);
 }
 
 bool initServer() {
-  // ESP works as both an access point and a station point.
+  // Makes ESP work as both an access point and a station point.
   WiFi.mode(WIFI_AP_STA);
   // Rocket -> phone
   WiFi.softAP(AP_SSID, AP_PASS);
@@ -109,10 +94,6 @@ bool initServer() {
   
   Serial.println("[server] HTTP server started");
   return true;
-}
-
-void updateDHTReading(const DhtReading& reading) {
-  lastDht = reading;
 }
 
 void updateBMPReading(const BmpReading& reading) {

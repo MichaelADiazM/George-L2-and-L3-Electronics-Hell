@@ -1,7 +1,7 @@
 /**
  * sensor.h
  * --------
- * DHT20 sensor interface. Owns all I2C communication with the sensor.
+ * BMP390 sensor interface. Owns all I2C communication with the sensor.
  * The rest of the codebase only calls these three functions.
  */
 
@@ -9,23 +9,19 @@
 
 #include <stdbool.h>
 
-// Holds a single reading from the DHT20
-struct DhtReading {
-    float temperatureC;
-    float temperatureF;
-    float humidity;
-    bool valid;
-};
-
-//Holds a single reading from the BMP390
 struct BmpReading {
-    float pressure;
-    float altitudeM;
-    bool valid;
+    float pressure;          // Atmospheric pressure in hPa
+    float temperatureC;      // Temperature in Celsius
+    float altitudeM;         // Calculated altitude in meters
+    bool valid;              // Whether the reading succeeded
 };
 
+/**
+ * readBmp()
+ * Reads current temperature, pressure, and altitude from the BMP390.
+ * Returns a BmpReading struct; check valid flag before using other fields.
+ */
 BmpReading readBmp();
-DhtReading readDht();
 
 /**
  * initSensor()
@@ -39,16 +35,3 @@ bool initSensor();
  * No-op if reading.valid is false.
  */
 void printBmpReading(const BmpReading& r);
-
-/**
- * printDhtReading()
- * Formats and prints a dht reading to Serial.
- * No-op if reading.valid is false.
- */
-void printDhtReading(const DhtReading& r);
-
-/**
- * sanityCheck()
- * Verifies whether the readings from the DHT20 are within expected range
- */
-bool sanityCheck(DhtReading temp, DhtReading hum);

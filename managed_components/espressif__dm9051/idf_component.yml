@@ -1,0 +1,9 @@
+dependencies:
+  idf: '>=6.0'
+description: DM9051 Ethernet Driver
+repository: git://github.com/espressif/esp-eth-drivers.git
+repository_info:
+  commit_sha: 83e635ec012cfb08654f99b92ea390dc7f4a08f3
+  path: dm9051
+url: https://github.com/espressif/esp-eth-drivers/tree/master/dm9051
+version: 1.1.0
